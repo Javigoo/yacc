@@ -21,8 +21,8 @@
                                 	return(REG);
                                 }
 
-[0-9]+                          {	yylval.valor=atoi(yytext);
-                               	 	return(INT);
+\*|\+|                           {	yylval.reg=yytext[0]-'a'; 		// definim registres amb noms a-z
+                                	return(SYMBOL);
                                 }
 
 \n                              {	nlin++;
