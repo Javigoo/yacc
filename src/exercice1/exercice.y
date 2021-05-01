@@ -10,7 +10,8 @@
     #include<stdio.h>
     #include<ctype.h>
     
-    int regs[26]={0};
+    int intRegs[26]={0};
+    float floatRegs[26]={0};
     
     extern int nlin;
     extern int yylex(void);
@@ -23,12 +24,16 @@
 
 %start calculadora
 
-%union{	int valor;
-        int reg;
+%union{	int intValue;
+        int intReg;
+        float floatValue;
+        int floatReg;
         }
 
-%token <reg> REG
-%token <valor> INT
+%token <intValue> INT_VALUE
+%token <intReg> INT_REG
+%token <floatValue> FLOAT_VALUE
+%token <floatReg> FLOAT_REG
 
 %left '|'
 %left '&'
@@ -36,39 +41,60 @@
 %left '*' '/' '%'
 %left UMENYS        /* precedencia de l'operador unari menys */
 
-%type <valor> expr  sentencia calculadora
+%type <floatValue> floatExpr sentencia calculadora
+%type <intValue> intExpr
+
 
 %%
 
-calculadora	:               {;}
-                    |       calculadora sentencia
-                    ;
-
-sentencia  :    '\n'                    {;}
-                |   expr ';'           {fprintf(stdout,"%d \n", $1);}
-                |   REG '=' expr ';'   {regs[$1] = $3;}
-                |   error ';'          {fprintf(stderr,"ERROR EXPRESSIO INCORRECTA Línea %d \n", nlin);
-                                            yyerrok;
-                                        }
+calculadora:        {;}
+                |   calculadora sentencia
                 ;
 
-expr  :        '(' expr ')'             {$$ = $2;}
-      |        expr '+' expr            {$$ = $1 + $3;}
-      |        expr '-' expr            {$$ = $1 - $3;} 
-      |        expr '*' expr            {$$ = $1 * $3;}
-      |        expr '/' expr            {if ($3)
-                                          $$ = $1 / $3;
-                                         else
-                                          {fprintf(stderr,"Divisio per zero \n");
-                                           YYERROR;}
-                                          }
-      |       expr '%' expr           {$$ = $1 % $3;}
-      |       expr '&' expr           {$$ = $1 & $3;}
-      |       expr '|' expr           {$$ = $1 | $3;}
-      |       '-' expr %prec UMENYS   {$$ = - $2;}
-      |       REG                  {$$ = regs[$1];}
-      |       INT                {$$ = $1;}
-      ;
+sentencia:      '\n'                                {;}
+                |   intExpr ';'                     {fprintf(stdout,"%d \n", $1);}
+                |   floatExpr ';'                   {fprintf(stdout,"%f \n", $1);}
+                |   INT_REG '=' intExpr ';'         {intRegs[$1] = $3;}
+                |   FLOAT_REG '=' floatExpr ';'     {floatRegs[$1] = $3;}
+                |   error ';'                       {fprintf(stderr,"ERROR EXPRESSIO INCORRECTA Línea %d \n", nlin);
+                                                        yyerrok;
+                                                    }
+                ;
+
+intExpr:        '(' intExpr ')'             {$$ = $2;}
+            |   intExpr '+' intExpr         {$$ = $1 + $3;}
+            |   intExpr '-' intExpr         {$$ = $1 - $3;} 
+            |   intExpr '*' intExpr         {$$ = $1 * $3;}
+            |   intExpr '/' intExpr         {   if ($3)
+                                                    $$ = $1 / $3;
+                                                else{
+                                                    fprintf(stderr,"Divisio per zero \n");
+                                                    YYERROR;
+                                                }
+                                            }
+            |   intExpr '%' intExpr         {$$ = $1 % $3;}
+            |   intExpr '&' intExpr         {$$ = $1 & $3;}
+            |   intExpr '|' intExpr         {$$ = $1 | $3;}
+            |   '-' intExpr %prec UMENYS    {$$ = - $2;}
+            |   INT_REG                     {$$ = intRegs[$1];}
+            |   INT_VALUE                   {$$ = $1;}
+            ;
+
+floatExpr:        '(' floatExpr ')'             {$$ = $2;}
+            |   floatExpr '+' floatExpr         {$$ = $1 + $3;}
+            |   floatExpr '-' floatExpr         {$$ = $1 - $3;} 
+            |   floatExpr '*' floatExpr         {$$ = $1 * $3;}
+            |   floatExpr '/' floatExpr         {   if ($3)
+                                                    $$ = $1 / $3;
+                                                else{
+                                                    fprintf(stderr,"Divisio per zero \n");
+                                                    YYERROR;
+                                                }
+                                            }
+            |   '-' floatExpr %prec UMENYS    {$$ = - $2;}
+            |   FLOAT_REG                     {$$ = floatRegs[$1];}
+            |   FLOAT_VALUE                   {$$ = $1;}
+            ;
 
 %%
 
@@ -79,14 +105,17 @@ void yyerror (char const *s){
 }
 
 int main(){
-        
-    if (yyparse()==0){
-        for (int i=0; i<26; i++)
-        if (regs[i]!=0)
-        printf("%c = %d \n", 'a'+i, regs[i]);
+    if (yyparse()==0) {
+        for (int i=0; i<26; i++) {
+            if (intRegs[i]!=0) {
+                printf("%c = %d \n", 'a'+i, intRegs[i]);
+            }
+            if (floatRegs[i]!=0) {
+                printf("%c = %f \n", 'A'+i, floatRegs[i]);
+            }   
+        }
         return(0);
+    } else {
+        return(1);
     }
-    else
-    return(1);
-    
 }

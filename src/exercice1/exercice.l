@@ -17,12 +17,20 @@
 %%
 [ \t]+                          ;
  
-[a-z]                           {	yylval.reg=yytext[0]-'a'; 		// definim registres amb noms a-z
-                                	return(REG);
+[a-z]                           {	yylval.intReg=yytext[0]-'a';
+                                	return(INT_REG);
                                 }
 
-[0-9]+                          {	yylval.valor=atoi(yytext);
-                               	 	return(INT);
+[A-Z]                           {	yylval.floatReg=yytext[0]-'A';
+                                	return(FLOAT_REG);
+                                }
+
+[0-9]+                          {	yylval.intValue=atoi(yytext);
+                               	 	return(INT_VALUE);
+                                }
+
+[0-9]+.[0-9]+                   {	yylval.floatValue=atof(yytext);
+                               	 	return(FLOAT_VALUE);
                                 }
 
 \n                              {	nlin++;
