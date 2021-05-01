@@ -73,6 +73,7 @@ intExpr:        '(' intExpr ')'             {$$ = $2;}
                                                 }
                                             }
             |   intExpr '%' intExpr         {$$ = $1 % $3;}
+            |   intExpr ">>" intExpr         {$$ = $1 + $3;}
             |   intExpr '&' intExpr         {$$ = $1 & $3;}
             |   intExpr '|' intExpr         {$$ = $1 | $3;}
             |   '-' intExpr %prec UMENYS    {$$ = - $2;}
@@ -81,6 +82,7 @@ intExpr:        '(' intExpr ')'             {$$ = $2;}
             ;
 
 floatExpr:        '(' floatExpr ')'             {$$ = $2;}
+            |   '#' intExpr                {$$ = (float)$2;}
             |   floatExpr '+' floatExpr         {$$ = $1 + $3;}
             |   floatExpr '-' floatExpr         {$$ = $1 - $3;} 
             |   floatExpr '*' floatExpr         {$$ = $1 * $3;}
