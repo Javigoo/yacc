@@ -22,13 +22,14 @@
                                 }
 
 [0-9]+                          {	yylval.valor=atoi(yytext);
-                               	 	 return(INT);
+                               	 	return(INT);
                                 }
 
-\n                             {	nlin++;
-                                    return(yytext[0]);
+\n                              {	nlin++;
+                                        return(yytext[0]);
                                 }
 
-.                     		 {	return(yytext[0]);	}	/*  Els errors es processaran a nvell sintàctic */
+.                               {	return(yytext[0]);	
+                                }	/*  Els errors es processaran a nvell sintàctic */
 
 

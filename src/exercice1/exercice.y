@@ -3,29 +3,29 @@
         /*         Calculadora amb registres            */
         /************************************************/
 
-	
-		
+    
+        
 %{
-	
-	#include<stdio.h>
-	#include<ctype.h>
+    
+    #include<stdio.h>
+    #include<ctype.h>
     
     int regs[26]={0};
-	
-	extern int nlin;
+    
+    extern int nlin;
     extern int yylex(void);
     void yyerror (char const *);
 
-	
+    
 
 %}
-	
+    
 
 %start calculadora
 
 %union{	int valor;
-		int reg;
-		}
+        int reg;
+        }
 
 %token <reg> REG
 %token <valor> INT
@@ -40,16 +40,18 @@
 
 %%
 
-calculadora	:           {;}
-       			 |       calculadora sentencia
-       			 ;
-sentencia  :    '\n' 			{;}
-                |	expr '\n'             {fprintf(stdout,"%d \n", $1);}
-                |    REG '=' expr '\n'    {regs[$1] = $3;}
-                |    error '\n'           {fprintf(stderr,"ERROR EXPRESSIO INCORRECTA Línea %d \n", nlin);
-                                            yyerrok;	}
+calculadora	:               {;}
+                    |       calculadora sentencia
+                    ;
 
-         		  ;
+sentencia  :    '\n'                    {;}
+                |   expr ';'           {fprintf(stdout,"%d \n", $1);}
+                |   REG '=' expr ';'   {regs[$1] = $3;}
+                |   error ';'          {fprintf(stderr,"ERROR EXPRESSIO INCORRECTA Línea %d \n", nlin);
+                                            yyerrok;
+                                        }
+                ;
+
 expr  :        '(' expr ')'             {$$ = $2;}
       |        expr '+' expr            {$$ = $1 + $3;}
       |        expr '-' expr            {$$ = $1 - $3;} 
