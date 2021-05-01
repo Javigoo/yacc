@@ -29,7 +29,7 @@
                                	 	return(INT_VALUE);
                                 }
 
-[0-9]+.[0-9]+                   {	yylval.floatValue=atof(yytext);
+[0-9]+\.[0-9]+                   {	yylval.floatValue=atof(yytext);
                                	 	return(FLOAT_VALUE);
                                 }
 
