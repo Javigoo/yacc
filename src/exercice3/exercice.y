@@ -1,90 +1,56 @@
-        /************************************************/
-        /*              ESPECIFICACIO YACC              */
-        /*         Calculadora amb registres            */
-        /************************************************/
-
-	
-		
 %{
-	
-	#include<stdio.h>
-	#include<ctype.h>
-    
-    int regs[26]={0};
-	
-	extern int nlin;
-    extern int yylex(void);
-    void yyerror (char const *);
-
-	
-
+   /* Definition section */
+   #include <stdio.h>
+   #include <stdlib.h>
 %}
-	
-
-%start calculadora
-
-%union{	int valor;
-		int reg;
-		}
-
-%token <reg> REG
-%token <valor> INT
-
-%left '|'
-%left '&'
-%left '+' '-'
-%left '*' '/' '%'
-%left UMENYS        /* precedencia de l'operador unari menys */
-
-%type <valor> expr  sentencia calculadora
-
+  
+%token    REG
+%left    '+' '-'
+%left    '*' '/'
+%left    UMINUS
+  
+/* Rule Section */
 %%
-
-calculadora	:           {;}
-       			 |       calculadora sentencia
-       			 ;
-sentencia  :    '\n' 			{;}
-                |	expr '\n'             {fprintf(stdout,"%d \n", $1);}
-                |    REG '=' expr '\n'    {regs[$1] = $3;}
-                |    error '\n'           {fprintf(stderr,"ERROR EXPRESSIO INCORRECTA Línea %d \n", nlin);
-                                            yyerrok;	}
-
-         		  ;
-expr  :        '(' expr ')'             {$$ = $2;}
-      |        expr '+' expr            {$$ = $1 + $3;}
-      |        expr '-' expr            {$$ = $1 - $3;} 
-      |        expr '*' expr            {$$ = $1 * $3;}
-      |        expr '/' expr            {if ($3)
-                                          $$ = $1 / $3;
-                                         else
-                                          {fprintf(stderr,"Divisio per zero \n");
-                                           YYERROR;}
-                                          }
-      |       expr '%' expr           {$$ = $1 % $3;}
-      |       expr '&' expr           {$$ = $1 & $3;}
-      |       expr '|' expr           {$$ = $1 | $3;}
-      |       '-' expr %prec UMENYS   {$$ = - $2;}
-      |       REG                  {$$ = regs[$1];}
-      |       INT                {$$ = $1;}
-      ;
-
+  
+S  :  E
+E  :  E'+'{A1();}T{A2();}
+   |  E'-'{A1();}T{A2();}
+   |  T
+   ;
+T  :  T'*'{A1();}F{A2();}
+   |  T'/'{A1();}F{A2();}
+   |  F
+   ;
+F  :  '('E{A2();}')'
+   |  '-'{A1();}F{A2();}
+   |  REG{A3();}
+   ;
+  
 %%
-
-/* Called by yyparse on error. */
-
-void yyerror (char const *s){
-    fprintf (stderr, "%s\n", s);
+  
+#include"lex.yy.c"
+char st[100];
+int top=0;
+  
+//driver code
+int main()
+{
+    printf("Enter infix expression:  "); 
+    yyparse();
+    printf("\n");
+    return 0;
 }
-
-int main(){
-        
-    if (yyparse()==0){
-        for (int i=0; i<26; i++)
-        if (regs[i]!=0)
-        printf("%c = %d \n", 'a'+i, regs[i]);
-        return(0);
-    }
-    else
-    return(1);
-    
+A1()
+{
+    st[top++]=yytext[0];
+}
+  
+A2()
+{
+    printf("%c", st[--top]);
+}
+  
+A3()
+{
+    printf("%c", yytext[0]);
 }
