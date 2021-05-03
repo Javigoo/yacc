@@ -6,7 +6,7 @@
 %{
 	#include "exercice.tab.h"
 
-	int nlin=0;
+	int nlin=1;
 %}
 
 %option nounput
@@ -29,7 +29,7 @@
                                	 	return(INT_VALUE);
                                 }
 
-[0-9]+\.[0-9]+                   {	yylval.floatValue=atof(yytext);
+[0-9]+\.[0-9]+                  {	yylval.floatValue=atof(yytext);
                                	 	return(FLOAT_VALUE);
                                 }
 

@@ -37,6 +37,8 @@
 
 %left '|'
 %left '&'
+%left '^'
+%left '<<' '>>'
 %left '+' '-'
 %left '*' '/' '%'
 %left UMENYS        /* precedencia de l'operador unari menys */
@@ -61,41 +63,57 @@ sentencia:      '\n'                                {;}
                                                     }
                 ;
 
-intExpr:        '(' intExpr ')'             {$$ = $2;}
-            |   intExpr '+' intExpr         {$$ = $1 + $3;}
-            |   intExpr '-' intExpr         {$$ = $1 - $3;} 
-            |   intExpr '*' intExpr         {$$ = $1 * $3;}
-            |   intExpr '/' intExpr         {   if ($3)
-                                                    $$ = $1 / $3;
-                                                else{
-                                                    fprintf(stderr,"Divisio per zero \n");
-                                                    YYERROR;
+intExpr:    '(' intExpr ')'                     {$$ = $2;}
+        
+            /* Operadors aritmetics binaris enters */
+            |   intExpr '+' intExpr             {$$ = $1 + $3;}
+            |   intExpr '-' intExpr             {$$ = $1 - $3;} 
+            |   intExpr '*' intExpr             {$$ = $1 * $3;}
+            |   intExpr '/' intExpr             {       if ($3)
+                                                        $$ = $1 / $3;
+                                                    else{
+                                                        fprintf(stderr,"Divisio per zero \n");
+                                                        YYERROR;
+                                                    }
                                                 }
-                                            }
-            |   intExpr '%' intExpr         {$$ = $1 % $3;}
-            |   intExpr ">>" intExpr         {$$ = $1 + $3;}
-            |   intExpr '&' intExpr         {$$ = $1 & $3;}
-            |   intExpr '|' intExpr         {$$ = $1 | $3;}
-            |   '-' intExpr %prec UMENYS    {$$ = - $2;}
-            |   INT_REG                     {$$ = intRegs[$1];}
-            |   INT_VALUE                   {$$ = $1;}
+            |   intExpr '%' intExpr             {$$ = $1 % $3;}
+            
+            /* Operadors aritmetics unaris enters */
+            |   '-' intExpr %prec UMENYS        {$$ = - $2;}
+
+            /* Operadors de bit */
+            |   "~" intExpr                     {$$ = ~ $2;}
+            |   intExpr '&' intExpr             {$$ = $1 & $3;}
+            |   intExpr '|' intExpr             {$$ = $1 | $3;}
+            |   intExpr '^' intExpr             {$$ = $1 ^ $3;}
+
+            /* Operadors de desplacament de bits */
+            |   intExpr '<<' intExpr            {$$ = $1 << $3;}
+            |   intExpr '>>' intExpr            {$$ = $1 >> $3;}
+
+            |   INT_REG                         {$$ = intRegs[$1];}
+            |   INT_VALUE                       {$$ = $1;}
             ;
 
-floatExpr:        '(' floatExpr ')'             {$$ = $2;}
-            |   '#' intExpr                {$$ = (float)$2;}
+floatExpr:  '(' floatExpr ')'                   {$$ = $2;}
+            |   '#' intExpr                     {$$ = (float)$2;}
+            /* Operadors aritmetics binaris de reals */
             |   floatExpr '+' floatExpr         {$$ = $1 + $3;}
             |   floatExpr '-' floatExpr         {$$ = $1 - $3;} 
             |   floatExpr '*' floatExpr         {$$ = $1 * $3;}
             |   floatExpr '/' floatExpr         {   if ($3)
-                                                    $$ = $1 / $3;
-                                                else{
-                                                    fprintf(stderr,"Divisio per zero \n");
-                                                    YYERROR;
+                                                        $$ = $1 / $3;
+                                                    else{
+                                                        fprintf(stderr,"Divisio per zero \n");
+                                                        YYERROR;
+                                                    }
                                                 }
-                                            }
-            |   '-' floatExpr %prec UMENYS    {$$ = - $2;}
-            |   FLOAT_REG                     {$$ = floatRegs[$1];}
-            |   FLOAT_VALUE                   {$$ = $1;}
+
+            /* Operadors aritmetics unaris de reals */
+            |   '-' floatExpr %prec UMENYS      {$$ = - $2;}
+
+            |   FLOAT_REG                       {$$ = floatRegs[$1];}
+            |   FLOAT_VALUE                     {$$ = $1;}
             ;
 
 %%
