@@ -23,21 +23,21 @@
 
 %%
 
-final:  {;}
-        |   final lines
+final:  {fprintf(stdout,"final:\n");}
+        |   final lines {fprintf(stdout,"final: final lines\n");}
         ;
 
-lines:  '\n'    {;}
-        | E ';' { printf("\n");}
+lines:  '\n'    {fprintf(stdout,"lines: \\n\n");}
+        | E ';' {fprintf(stdout,"lines: E ';'\n");}
 	;
 
-E:      E'-'E   { fprintf(stdout,"resta: %i - %i \n", $1, $3);}
-        | E'+'E { fprintf(stdout,"sum: %i + %i \n", $1, $3);}
-        | E'*'E { fprintf(stdout,"mult: %i * %i \n", $1, $3);}
-        | E'%'E { fprintf(stdout,"mod: %i %% %i \n", $1, $3);}
-        | E'/'E { fprintf(stdout,"division: %i / %i \n", $1, $3);}
-        | '('E')'       { fprintf(stdout,"parentesis: (%i) \n", $2);}
-        | OPERANDO { printf("operando:%i \n ",yylval);}
+E:      E'-'E           {fprintf(stdout,"E: E'-'E\n");}
+        | E'+'E         {fprintf(stdout,"E: E'+'E\n");}
+        | E'*'E         {fprintf(stdout,"E: E'*'E\n");}
+        | E'%'E         {fprintf(stdout,"E: E'%%'E\n");}
+        | E'/'E         {fprintf(stdout,"E: E'/'E\n");}
+        | '('E')'       {fprintf(stdout,"E: '('E')'\n");}
+        | OPERANDO      {fprintf(stdout,"E: OPERANDO (%i)\n", yyval);}
         ;
 
 %%
