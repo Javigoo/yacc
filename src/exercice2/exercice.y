@@ -1,46 +1,50 @@
 %{
- #define YYSTYPE double
- #include "lex.yy.c"
- #include <stdio.h>
- #include<ctype.h>
- 
- void yyerror(char *);
- 
+    
+  #include<stdio.h>
+  #include<ctype.h>
+    
+  extern int nlin;
+  extern int yylex(void);
+  void yyerror (char const *);
+
 %}
 
-%token NUMBER
-%left '+'  '-'
-%left '*'  '/'  '#'
-%right UMINUS
-%right '^'
+%start final
 
-%%
-final : lines '\n'
-    |
-    ;
-lines: E ';' { printf("\n");}
-	|
-	;
-E :E'+'E { printf(" + ");}
-  |E'-'E { printf(" - ");}
-  |E'*'E { printf(" * ");}
-  |E'#'E { printf(" # ");}
-  |E'/'E { printf(" / ");}
-  |'('E')'
-  |NUMBER { printf("%g ",yylval);}
-  ;
+%union{	int operando;
+        }
 
+%token <operando> OPERANDO
 
+%left '+' '-'
+%left '*' '/' '%'
 
 %%
 
-void yyerror(char *s) {
- fprintf(stderr, "%s\n", s);
+final:  {;}
+        |   final lines
+        ;
+
+lines:  '\n'    {;}
+        | E ';' { printf("\n");}
+	      ;
+
+E:      E'+'E { printf(" + ");}
+        | E'-'E { printf(" - ");}
+        | E'*'E { printf(" * ");}
+        | E'%'E { printf(" %% ");}
+        | E'/'E { printf(" / ");}
+        | '('E')'
+        | OPERANDO { printf("%i ",yylval);}
+        ;
+
+%%
+
+void yyerror (char const *s){
+  fprintf (stderr, "%s\n", s);
 }
 
-
-
 int main(void) {
- yyparse();
- return 0;
+  yyparse();
+  return 0;
 } 
