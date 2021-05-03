@@ -1,56 +1,52 @@
 %{
-   /* Definition section */
-   #include <stdio.h>
-   #include <stdlib.h>
+    
+  #include<stdio.h>
+  #include<ctype.h>
+    
+  extern int nlin;
+  extern int yylex(void);
+  void yyerror (char const *);
+
 %}
-  
-%token    REG
-%left    '+' '-'
-%left    '*' '/'
-%left    UMINUS
-  
-/* Rule Section */
+
+%start final
+
+%union{	int operando;
+        }
+
+%token <operando> OPERANDO
+
+%left '+' '-'
+%left '*' '/' '%'
+
+%type <operando> E
+
 %%
-  
-S  :  E
-E  :  E'+'{A1();}T{A2();}
-   |  E'-'{A1();}T{A2();}
-   |  T
-   ;
-T  :  T'*'{A1();}F{A2();}
-   |  T'/'{A1();}F{A2();}
-   |  F
-   ;
-F  :  '('E{A2();}')'
-   |  '-'{A1();}F{A2();}
-   |  REG{A3();}
-   ;
-  
+
+final:  {;}
+        |   final lines
+        ;
+
+lines:  '\n'    {;}
+        | E ';' { printf("\n");}
+	;
+
+E:      E'-'E   { fprintf(stdout,"resta: %i - %i \n", $1, $3);}
+        | E'+'E { fprintf(stdout,"sum: %i + %i \n", $1, $3);}
+        | E'*'E { fprintf(stdout,"mult: %i * %i \n", $1, $3);}
+        | E'%'E { fprintf(stdout,"mod: %i %% %i \n", $1, $3);}
+        | E'/'E { fprintf(stdout,"division: %i / %i \n", $1, $3);}
+        | '('E')'       { fprintf(stdout,"parentesis: (%i) \n", $2);}
+        | OPERANDO { printf("operando:%i \n ",yylval);}
+        ;
+
 %%
-  
-#include"lex.yy.c"
-char st[100];
-int top=0;
-  
-//driver code
-int main()
-{
-    printf("Enter infix expression:  "); 
-    yyparse();
-    printf("\n");
-    return 0;
+
+void yyerror (char const *s){
+  fprintf (stderr, "%s\n", s);
 }
-A1()
-{
-    st[top++]=yytext[0];
-}
-  
-A2()
-{
-    printf("%c", st[--top]);
-}
-  
-A3()
-{
-    printf("%c", yytext[0]);
-}
+
+int main(void) {
+  yyparse();
+  return 0;
+} 

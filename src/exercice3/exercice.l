@@ -1,12 +1,7 @@
-        /*************************************************/
-        /*               ESPECIFICACIO LEX               */
-        /*          Calculadora amb registres            */
-        /*************************************************/
-
 %{
 	#include "exercice.tab.h"
 
-	int nlin=0;
+	int nlin=1;
 %}
 
 %option nounput
@@ -17,16 +12,12 @@
 %%
 [ \t]+                          ;
  
-[a-z]                           {	yylval.reg=yytext[0]-'a'; 		// definim registres amb noms a-z
-                                	return(REG);
-                                }
-
-[0-9]+                          {	yylval.valor=atoi(yytext);
-                               	 	return(INT);
+[0-9]+                          {	yylval.operando=atoi(yytext);
+                                	return(OPERANDO);
                                 }
 
 \n                              {	nlin++;
-                                        return(yytext[0]);
+                                    return(yytext[0]);
                                 }
 
 .                               {	return(yytext[0]);	
