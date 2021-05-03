@@ -1,56 +1,71 @@
 %{
-   /* Definition section */
-   #include <stdio.h>
-   #include <stdlib.h>
+ #define YYSTYPE double
+ #include "lex.yy.c"
+ #include <stdio.h>
+ #include<ctype.h>
+ 
+ void yyerror(char *);
+ 
 %}
-  
-%token    REG
-%left    '+' '-'
-%left    '*' '/'
-%left    UMINUS
-  
-/* Rule Section */
+
+%token NUMBER
+%left '+'  '-'
+%left '*'  '/'  '#'
+%right UMINUS
+%right '^'
+
 %%
-  
-S  :  E
-E  :  E'+'{A1();}T{A2();}
-   |  E'-'{A1();}T{A2();}
-   |  T
-   ;
-T  :  T'*'{A1();}F{A2();}
-   |  T'/'{A1();}F{A2();}
-   |  F
-   ;
-F  :  '('E{A2();}')'
-   |  '-'{A1();}F{A2();}
-   |  REG{A3();}
-   ;
-  
+final : lines '\n'
+    |
+    ;
+lines: E ';' { P(); }
+	;
+E :E '*' {A1(yytext[0]);} E
+  |E '+' {A1(yytext[0]);} E
+  |'(' {B1('(');} E ')'{B1(')');}
+  |NUMBER {A1(yytext[0]);}
+
 %%
-  
-#include"lex.yy.c"
-char st[100];
-int top=0;
-  
-//driver code
-int main()
-{
-    printf("Enter infix expression:  "); 
-    yyparse();
-    printf("\n");
-    return 0;
+
+void yyerror(char *s) {
+ fprintf(stderr, "%s\n", s);
 }
-A1()
+
+char sta[100];
+char stb[100];
+int topa=0;
+int topb=0;
+
+int main(void) {
+ yyparse();
+ return 0;
+} 
+void A1(char c)
 {
-    st[top++]=yytext[0];
+    if (c=='+'){A2();}
+    if (c=='*'){B2();}
+    sta[topa++]=c;
+    B1(c);
 }
-  
-A2()
+
+void B1(char c)
 {
-    printf("%c", st[--top]);
+    stb[topb++]=c;
 }
-  
-A3()
+
+void A2(void)
 {
-    printf("%c", yytext[0]);
+    stb=sta;
+    topb=topa;
+}
+
+void B2(void)
+{
+    sta=stb;
+    topa=topb;
+}
+
+void P(void)
+{
+    printf("%s\n", sta);
 }
