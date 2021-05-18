@@ -1,0 +1,10 @@
+int a, b;
+
+float c,d,e;
+
+double x;
+
+int a b;
+
+int a
+
