@@ -5,6 +5,11 @@
  #include<ctype.h>
  
  void yyerror(char *);
+ void A1(char c);
+ void B1(char c);
+ void A2(void);
+ void B2(void);
+ void P(void);
  
 %}
 
@@ -39,7 +44,8 @@ int topb=0;
 int main(void) {
  yyparse();
  return 0;
-} 
+}
+
 void A1(char c)
 {
     if (c=='+'){A2();}
@@ -55,13 +61,13 @@ void B1(char c)
 
 void A2(void)
 {
-    stb=sta;
+    strcpy(stb,sta);
     topb=topa;
 }
 
 void B2(void)
 {
-    sta=stb;
+    strcpy(sta,stb);
     topa=topb;
 }
 
