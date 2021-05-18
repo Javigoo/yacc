@@ -19,7 +19,7 @@
 
 %start final
 
-%token <int> NUMBER
+%token <char> NUMBER
 
 %left '+' '-'
 %left '*' '/' '%'
@@ -31,7 +31,7 @@ final:  {;}
         ;
 
 lines:  E ';' { P(); }
-	    ;
+	;
         
 E:      E '*' {A1(yyval);} E
     |   E '+' {A1(yyval);} E
@@ -56,6 +56,7 @@ int main(void) {
 
 void A1(char c)
 {
+    printf("A1: %c\n", c);
     if (c=='+'){A2();}
     if (c=='*'){B2();}
     sta[topa++]=c;
@@ -64,6 +65,7 @@ void A1(char c)
 
 void B1(char c)
 {
+    printf("B1: %c\n", c);
     stb[topb++]=c;
 }
 
@@ -81,5 +83,5 @@ void B2(void)
 
 void P(void)
 {
-    printf("%s\n", sta);
+    printf("P: %s\n", sta);
 }

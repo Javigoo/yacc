@@ -12,7 +12,7 @@
 %%
 [ \t]+                          ;
  
-[0-9]+                          {	yylval=atoi(yytext);
+[0-9]+                          {	yylval=yytext[0];
                                 	return(NUMBER);
                                 }
 
@@ -22,4 +22,3 @@
 								
 .                               {	return(yytext[0]);	
                                 }
-								
