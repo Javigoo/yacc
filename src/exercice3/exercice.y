@@ -20,15 +20,17 @@
 %right '^'
 
 %%
-final : lines '\n'
-    |
-    ;
-lines: E ';' { P(); }
-	;
-E :E '*' {A1(yytext[0]);} E
-  |E '+' {A1(yytext[0]);} E
-  |'(' {B1('(');} E ')'{B1(')');}
-  |NUMBER {A1(yytext[0]);}
+final:  lines '\n'
+        |
+        ;
+
+lines:  E ';' { P(); }
+	    ;
+        
+E:      E '*' {A1(yytext[0]);} E
+    |   E '+' {A1(yytext[0]);} E
+    |   '(' {B1('(');} E ')'{B1(')');}
+    |   NUMBER {A1(yytext[0]);}
 
 %%
 

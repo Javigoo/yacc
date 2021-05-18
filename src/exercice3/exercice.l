@@ -1,12 +1,25 @@
 %{
-#include"exercice.tab.h"
-//extern int yylval;
-%}
-%%
-[0-9]+  {yylval=atoi(yytext); return NUMBER;}
-.|\n       return *yytext;
-%%
+	#include "exercice.tab.h"
 
-int yywrap(){
-    return 1;
-}
+	int nlin=1;
+%}
+
+%option nounput
+%option noinput
+%option noyywrap
+
+
+%%
+[ \t]+                          ;
+ 
+[0-9]+                          {	yylval=atoi(yytext);
+                                	return(NUMBER);
+                                }
+
+\n                              {	nlin++;
+                                    return(yytext[0]);
+                                }
+
+.                               {	return(yytext[0]);	
+                                }
+								
