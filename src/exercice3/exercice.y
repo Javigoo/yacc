@@ -33,10 +33,10 @@ final:  {;}
 lines:  E ';' { P(); }
 	    ;
         
-E:      E '*' {A1(yytext[0]);} E
-    |   E '+' {A1(yytext[0]);} E
+E:      E '*' {A1(yyval);} E
+    |   E '+' {A1(yyval);} E
     |   '(' {B1('(');} E ')'{B1(')');}
-    |   NUMBER {A1(yytext[0]);}
+    |   NUMBER {A1(yyval);}
 
 %%
 
