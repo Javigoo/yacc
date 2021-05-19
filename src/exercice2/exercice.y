@@ -27,13 +27,13 @@ final:  {;}
 
 lines:  '\n'    {;}
         | E ';' { printf("\n");}
-	      ;
+	;
 
-E:      E'+'E { printf(" + ");}
-        | E'-'E { printf(" - ");}
-        | E'*'E { printf(" * ");}
-        | E'%'E { printf(" %% ");}
-        | E'/'E { printf(" / ");}
+E:      E'+'E { printf("+ ");}
+        | E'-'E { printf("- ");}
+        | E'*'E { printf("* ");}
+        | E'/'E { printf("/ ");}
+        | E'%'E { printf("%% ");}
         | '('E')'
         | OPERANDO { printf("%i ",yylval);}
         ;

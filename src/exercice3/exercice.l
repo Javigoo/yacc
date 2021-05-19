@@ -12,8 +12,8 @@
 %%
 [ \t]+                          ;
  
-[0-9]+                          {	yylval=yytext[0];
-                                	return(NUMBER);
+[0-9]+                          {	yylval=yytext[0];   // Error: Solo coje un numero
+                                	return(OPERANDO);
                                 }
 
 \n                              {	nlin++;
