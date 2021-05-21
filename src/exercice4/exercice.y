@@ -1,90 +1,120 @@
-        /************************************************/
-        /*              ESPECIFICACIO YACC              */
-        /*         Calculadora amb registres            */
-        /************************************************/
-
-	
-		
 %{
-	
-	#include<stdio.h>
-	#include<ctype.h>
     
-    int regs[26]={0};
-	
-	extern int nlin;
-    extern int yylex(void);
-    void yyerror (char const *);
+  #include<stdio.h>
+  #include<ctype.h>
+    
+  #define YYSTYPE char *
 
-	
+  int MAX = 20;
+  int estat=0;
+  int automat[MAX][5];
+  extern int nlin;
+  extern int yylex(void);
+  void yyerror (char const *);
 
 %}
-	
 
-%start calculadora
+%start final
 
-%union{	int valor;
-		int reg;
-		}
+%union{	int operando;
+        int expression[2];
+      }
 
-%token <reg> REG
-%token <valor> INT
+%type <expression> E
+%token <operando> OPERANDO
 
-%left '|'
-%left '&'
 %left '+' '-'
 %left '*' '/' '%'
-%left UMENYS        /* precedencia de l'operador unari menys */
-
-%type <valor> expr  sentencia calculadora
 
 %%
 
-calculadora	:           {;}
-       			 |       calculadora sentencia
-       			 ;
-sentencia  :    '\n' 			{;}
-                |	expr '\n'             {fprintf(stdout,"%d \n", $1);}
-                |    REG '=' expr '\n'    {regs[$1] = $3;}
-                |    error '\n'           {fprintf(stderr,"ERROR EXPRESSIO INCORRECTA Línea %d \n", nlin);
-                                            yyerrok;	}
+final:  {;}
+        |   final lines
+        ;
 
-         		  ;
-expr  :        '(' expr ')'             {$$ = $2;}
-      |        expr '+' expr            {$$ = $1 + $3;}
-      |        expr '-' expr            {$$ = $1 - $3;} 
-      |        expr '*' expr            {$$ = $1 * $3;}
-      |        expr '/' expr            {if ($3)
-                                          $$ = $1 / $3;
-                                         else
-                                          {fprintf(stderr,"Divisio per zero \n");
-                                           YYERROR;}
-                                          }
-      |       expr '%' expr           {$$ = $1 % $3;}
-      |       expr '&' expr           {$$ = $1 & $3;}
-      |       expr '|' expr           {$$ = $1 | $3;}
-      |       '-' expr %prec UMENYS   {$$ = - $2;}
-      |       REG                  {$$ = regs[$1];}
-      |       INT                {$$ = $1;}
-      ;
+lines:  '\n'    {;}
+        | E ';' { printf("\n");}
+	      ;
+
+E:      E'.'E { 
+          set_transition( $1[1], 'e', $3[0]); 
+          int initial_and_final_estat[2] = { $1[1], $3[0]}
+          $$ = initial_and_final_estat;
+        }
+
+        | E'|'E {
+          int estat_inicial = set_estat();
+          int estat_final = set_estat();
+          set_transition( $1[1], 'e', estat_final);
+          set_transition( $3[1], 'e', estat_final);
+          set_transition( estat_inicial, 'e', $1[0]);
+          set_transition( estat_inicial, 'e', $3[0]);
+          int initial_and_final_estat[2] = {estat_inicial, estat_final}
+          $$ = initial_and_final_estat;
+        }
+
+        | E '*' {
+          int estat_inicial = set_estat();
+          int estat_final = set_estat();
+          set_transition( estat_inicial, 'e', $1[0] )
+          set_transition( $1[1], 'e', estat_final )
+          set_transition( $1[1], 'e', $1[0] )
+          set_transition( estat_inicial, 'e', estat_final )
+          int initial_and_final_estat[2] = {estat_inicial, estat_final}
+          $$ = initial_and_final_estat;          
+        }
+
+        | E '+' {
+          int estat_inicial = set_estat();
+          int estat_final = set_estat();
+          set_transition( estat_inicial, 'e', $1[0] )
+          set_transition( $1[1], 'e', estat_final )
+          set_transition( $1[1], 'e', $1[0] )
+          int initial_and_final_estat[2] = {estat_inicial, estat_final};
+          $$ = initial_and_final_estat;          
+        }
+        
+        | E '?' {
+          int estat_inicial = set_estat();
+          int estat_final = set_estat();
+          set_transition( estat_inicial, 'e', $1[0] );
+          set_transition( $1[1], 'e', estat_final );
+          set_transition( estat_inicial, 'e', estat_final );
+          int initial_and_final_estat[2] = {estat_inicial, estat_final};
+          $$ = initial_and_final_estat;
+        }
+
+        | '('E')' { $$ = $2; }
+
+        | OPERANDO { 
+            int estat_inicial = set_estat();
+            int estat_final = set_estat();
+            set_transition(estat_inicial, yylval, estat_final); 
+            int initial_and_final_estat[2] = {estat_inicial, estat_final};
+            $$ = initial_and_final_estat;
+          }
+        ;
 
 %%
-
-/* Called by yyparse on error. */
 
 void yyerror (char const *s){
-    fprintf (stderr, "%s\n", s);
+  fprintf (stderr, "%s\n", s);
 }
 
-int main(){
-        
-    if (yyparse()==0){
-        for (int i=0; i<26; i++)
-        if (regs[i]!=0)
-        printf("%c = %d \n", 'a'+i, regs[i]);
-        return(0);
-    }
-    else
-    return(1);
-    
+int main(void) {
+  yyparse();
+  return 0;
+}
+
+int get_estat(){
+  return estat;
+}
+
+int set_estat(){
+  estat++;
+  return estat;
+}
+
+void set_transition(int i, char t, int j){
+  j >> automat[i][t]
 }
