@@ -17,7 +17,7 @@
 [ \t]+                          ;
  
 abcd                            {	yylval=yytext[0];
-                                	return(NUMBER);
+                                	return(LETTER);
                                 }
 
 \n                              {	nlin++;

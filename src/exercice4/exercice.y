@@ -16,12 +16,12 @@
 
 %start final
 
-%union{	int operando;
+%union{	int letter;
         int expression[2];
       }
 
 %type <expression> E
-%token <operando> OPERANDO
+%token <letter> LETTER
 
 %left '+' '-'
 %left '*' '/' '%'
@@ -86,7 +86,7 @@ E:      E'.'E {
 
         | '('E')' { $$ = $2; }
 
-        | OPERANDO { 
+        | LETTER { 
             int estat_inicial = set_estat();
             int estat_final = set_estat();
             set_transition(estat_inicial, yylval, estat_final); 
