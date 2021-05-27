@@ -1,12 +1,11 @@
-        /*************************************************/
-        /*               ESPECIFICACIO LEX               */
-        /*          Calculadora amb registres            */
-        /*************************************************/
-
 %{
 	#include "exercice.tab.h"
+    #define YYSTYPE char *
 
-	int nlin=0;
+
+
+    extern YYSTYPE yylval;
+	int nlin=1;
 %}
 
 %option nounput
@@ -17,19 +16,13 @@
 %%
 [ \t]+                          ;
  
-[a-z]                           {	yylval.reg=yytext[0]-'a'; 		// definim registres amb noms a-z
-                                	return(REG);
-                                }
-
-[0-9]+                          {	yylval.valor=atoi(yytext);
-                               	 	return(INT);
+abcd                            {	yylval=yytext[0];
+                                	return(LETTER);
                                 }
 
 \n                              {	nlin++;
-                                        return(yytext[0]);
+                                    return(yytext[0]);
                                 }
-
+								
 .                               {	return(yytext[0]);	
-                                }	/*  Els errors es processaran a nvell sintàctic */
-
-
+                                }
