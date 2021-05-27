@@ -25,11 +25,7 @@
 
 %start calculadora
 
-%union{	char char_value;
-        int int_value;
-		}
-
-%token <char_value> VALUE
+%token <char> VALUE
 
 %left '|'
 %left '&'
@@ -37,7 +33,7 @@
 %left '*' '/' '%'
 %left UMENYS        /* precedencia de l'operador unari menys */
 
-%type <int_value> expr  sentencia calculadora
+%type <int> expr  sentencia calculadora
 
 %%
 
@@ -94,6 +90,7 @@ expr  :        '(' expr ')'             {
                                         }
       |       VALUE                  {
                                          int index = reservar();
+                                         printf("%s", yylval);
                                          strcpy(reserva[index], yylval);
                                          $$ = index;
                                         }
