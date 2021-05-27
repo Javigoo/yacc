@@ -2,25 +2,21 @@
     
   #include<stdio.h>
   #include<ctype.h>
-    
-  #define YYSTYPE char *
 
-  int MAX = 20;
   int estat=0;
-  int automat[MAX][5];
+  int automat[20][5];
   extern int nlin;
   extern int yylex(void);
   void yyerror (char const *);
-
 %}
 
 %start final
 
 %union{	int letter;
-        int expression[2];
+        struct {int *initial_val, final_val} ExpressionType;
       }
 
-%type <expression> E
+%type <ExpressionType> E
 %token <letter> LETTER
 
 %left '+' '-'
@@ -37,61 +33,59 @@ lines:  '\n'    {;}
 	      ;
 
 E:      E'.'E { 
-          set_transition( $1[1], 'e', $3[0]); 
-          int initial_and_final_estat[2] = { $1[1], $3[0]}
-          $$ = initial_and_final_estat;
+          set_transition( $1.final_val, 'e', $3.initial_val);
+          $$.initial_val = $1.final_val;
+          $$.final_val = $3.initial_val;
         }
 
         | E'|'E {
           int estat_inicial = set_estat();
           int estat_final = set_estat();
-          set_transition( $1[1], 'e', estat_final);
-          set_transition( $3[1], 'e', estat_final);
-          set_transition( estat_inicial, 'e', $1[0]);
-          set_transition( estat_inicial, 'e', $3[0]);
-          int initial_and_final_estat[2] = {estat_inicial, estat_final}
-          $$ = initial_and_final_estat;
+          set_transition( $1.final_val, 'e', estat_final);
+          set_transition( $3.final_val, 'e', estat_final);
+          set_transition( estat_inicial, 'e', $1.initial_val);
+          set_transition( estat_inicial, 'e', $3.initial_val);
+          $$.initial_val = estat_inicial;
+          $$.final_val = estat_final;
         }
 
         | E '*' {
           int estat_inicial = set_estat();
           int estat_final = set_estat();
-          set_transition( estat_inicial, 'e', $1[0] )
-          set_transition( $1[1], 'e', estat_final )
-          set_transition( $1[1], 'e', $1[0] )
-          set_transition( estat_inicial, 'e', estat_final )
-          int initial_and_final_estat[2] = {estat_inicial, estat_final}
-          $$ = initial_and_final_estat;          
+          set_transition( estat_inicial, 'e', $1.initial_val );
+          set_transition( $1.final_val, 'e', estat_final );
+          set_transition( $1.final_val, 'e', $1.initial_val );
+          set_transition( estat_inicial, 'e', estat_final );
+          $$.initial_val = estat_inicial;
+          $$.final_val = estat_final;
         }
 
         | E '+' {
           int estat_inicial = set_estat();
           int estat_final = set_estat();
-          set_transition( estat_inicial, 'e', $1[0] )
-          set_transition( $1[1], 'e', estat_final )
-          set_transition( $1[1], 'e', $1[0] )
-          int initial_and_final_estat[2] = {estat_inicial, estat_final};
-          $$ = initial_and_final_estat;          
+          set_transition( estat_inicial, 'e', $1.initial_val );
+          set_transition( $1.final_val, 'e', estat_final );
+          set_transition( $1.final_val, 'e', $1.initial_val );
+          $$.initial_val = estat_inicial;
+          $$.final_val = estat_final;
         }
         
         | E '?' {
           int estat_inicial = set_estat();
           int estat_final = set_estat();
-          set_transition( estat_inicial, 'e', $1[0] );
-          set_transition( $1[1], 'e', estat_final );
+          set_transition( estat_inicial, 'e', $1.initial_val );
+          set_transition( $1.final_val, 'e', estat_final );
           set_transition( estat_inicial, 'e', estat_final );
-          int initial_and_final_estat[2] = {estat_inicial, estat_final};
-          $$ = initial_and_final_estat;
+          $$.initial_val = estat_inicial;
+          $$.final_val = estat_final;
         }
-
-        | '('E')' { $$ = $2; }
 
         | LETTER { 
             int estat_inicial = set_estat();
             int estat_final = set_estat();
             set_transition(estat_inicial, yylval, estat_final); 
-            int initial_and_final_estat[2] = {estat_inicial, estat_final};
-            $$ = initial_and_final_estat;
+            $$.initial_val = estat_inicial;
+            $$.final_val = estat_final;
           }
         ;
 
@@ -116,5 +110,5 @@ int set_estat(){
 }
 
 void set_transition(int i, char t, int j){
-  j >> automat[i][t]
+  j >> automat[i][t];
 }
